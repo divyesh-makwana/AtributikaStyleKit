@@ -20,9 +20,12 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "AtributikaStyleKit",
-            dependencies: ["Atributika"]),
+            dependencies: ["Atributika"],
+            path: "Sources"
+        ),
         .testTarget(
             name: "AtributikaStyleKitTests",
-            dependencies: ["AtributikaStyleKit"]),
+            dependencies: ["AtributikaStyleKit"],
+            path: "Tests"),
     ]
 )
