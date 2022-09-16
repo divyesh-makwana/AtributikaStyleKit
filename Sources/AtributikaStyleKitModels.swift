@@ -118,10 +118,8 @@ enum Attribute: Codable, Equatable {
                     return Font.systemFont(ofSize: size)
                 case "systemBold":
                     return Font.boldSystemFont(ofSize: size)
-                #if os(iOS) || os(tvOS) || os(watchOS)
                 case "systemItalic":
                     return Font.italicSystemFont(ofSize: size)
-                #endif
                 default:
                     guard let font = Font(name: name, size: size) else { fatalError("Can't create font with name: \(name)") }
                     return font
@@ -400,7 +398,7 @@ enum Attribute: Codable, Equatable {
             
             // set asset catalog named or hex
             if let color = color {
-                shadow.shadowColor = Color(assetNamed: color) ?? Color(hex: color)
+                shadow.shadowColor = Color(named: color) ?? Color(hex: color)
             }
             
             return shadow

@@ -16,16 +16,6 @@ import Foundation
 
 extension Color {
     
-    convenience init?(assetNamed name: String) {
-        #if os(iOS) || os(tvOS) || os(watchOS)
-        guard #available(iOSApplicationExtension 11.0, *) else { return nil }
-        self.init(named: name)
-        #elseif os(OSX)
-        guard #available(macOSApplicationExtension 10.13, *) else { return nil }
-        self.init(named: NSColor.Name(rawValue: name))
-        #endif
-    }
-    
     convenience init(hex hexString: String) {
         var hex = hexString.hasPrefix("#") ? String(hexString.dropFirst()) : hexString
         

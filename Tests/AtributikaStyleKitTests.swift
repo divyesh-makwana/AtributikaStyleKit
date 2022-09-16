@@ -100,7 +100,7 @@ class ItemTests: XCTestCase {
         
         let data = JSON.data(using: .utf8)!
         let item = try decoder.decode(Attribute.FontType.self, from: data).toNative()
-        XCTAssertEqual(item, .italicSystemFont(ofSize: 18))
+        XCTAssertEqual(item, Font.italicSystemFont(ofSize: 18))
     }
     
     func test_fontModelDecoding_withPreferredFontJSON_shouldBeTrue() throws {
@@ -198,7 +198,7 @@ class ItemTests: XCTestCase {
     func test_hexColorStringToNativeColorDecoding_withValidString_shouldBeTrue() throws {
         let hexString = "#FF0000"
         let item = Color(hex: hexString)
-        XCTAssertEqual(item, UIColor.red)
+        XCTAssertEqual(item, Color.red)
     }
     
     // MARK: Underline
