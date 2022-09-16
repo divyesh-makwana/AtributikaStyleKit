@@ -126,22 +126,21 @@ enum Attribute: Codable, Equatable {
                 }
             // TODO: Add weight support
             case .preferred(let textStyle, _):
-                #if os(tvOS)
-                    fatalError("preferredFont is unavailable in tvOS")
-                #elseif os(iOS) || os(watchOS)
-                if #available(iOS 11.0, watchOS 5.0, macOS 11, *) {
+                #if os(iOS) || os(watchOS)
+                if #available(iOS 11.0, watchOS 5.0, *) {
                     return Font.preferredFont(forTextStyle: textStyle.toNative())
                 } else {
                     fatalError("preferredFont only available in iOS 11.0+, watchOS 5.0+")
                 }
-                #elseif os(OSX)
+                #elseif os(macOS)
                 if #available(macOS 11.0, *) {
                     return Font.preferredFont(forTextStyle: textStyle.toNative())
                 } else {
                     fatalError("preferredFont only available in macOS 11.0+")
                 }
-                #endif
-                
+                #elseif os(tvOS)
+                    fatalError("preferredFont is unavailable in tvOS")
+                #endif                
             }
         }
     }
