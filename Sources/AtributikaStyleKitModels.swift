@@ -110,18 +110,18 @@ enum Attribute: Codable, Equatable {
         }
         
         // MARK: FontType - Native value conversion
-        func toNative() -> Font {
+        func toNative() throws -> Font {
             switch self {
             case .custom(let name, let size):
                 switch name {
-                case "system":
+                case "system", "systemFont":
                     return Font.systemFont(ofSize: size)
-                case "systemBold":
+                case "bold", "boldSystem", "systemBold", "boldSystemFont":
                     return Font.boldSystemFont(ofSize: size)
-                case "systemItalic":
+                case "italic", "italicSystem", "systemItalic", "italicSystemFont":
                     return Font.italicSystemFont(ofSize: size)
                 default:
-                    guard let font = Font(name: name, size: size) else { fatalError("Can't create font with name: \(name)") }
+                    guard let font = Font(name: name, size: size) else { throw NativeConversionError.customFontNotFound(name: name, size: size) }
                     return font
                 }
             // TODO: Add weight support

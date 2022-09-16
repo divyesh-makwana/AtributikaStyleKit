@@ -2,7 +2,7 @@ import XCTest
 @testable import AtributikaStyleKit
 
 // MARK:- item test
-class ItemTests: XCTestCase {
+class AtributikaStyleKitTests: XCTestCase {
     
     let decoder: JSONDecoder = {
         let decoder = JSONDecoder()
@@ -329,6 +329,24 @@ class ItemTests: XCTestCase {
         XCTAssertEqual(item, .init(normal: Attributes([.font(.custom(name: "name", size: 18)), .kern(10)])))
     }
     
+    func test_atributikaStylesModelDecodingToAtributikaStyle_withoutProvidingStateKeys_shouldBeTrue() throws {
+        let JSON = """
+        {
+            "font": {
+                "name": "systemFont",
+                "size": 18
+            },
+            "kern": 10
+        }
+        """
+        
+        let data = JSON.data(using: .utf8)!
+        let style = try decoder.decode(AtributikaStyleGroup.self, from: data).toStyle()
+        XCTAssertEqual(style.attributes[.font] as! Font, Font.systemFont(ofSize: 18))
+        XCTAssertEqual(style.attributes[.kern] as! Float, 10)
+        
+    }
+    
     func test_tagStylesModelDecoding_withValidJSON_shouldBeTrue() throws {
         let JSON = """
         {
@@ -409,5 +427,94 @@ class ItemTests: XCTestCase {
             name: "menu-style",
             attributes: .init(normal: .init([.font(.custom(name: "name", size: 18)), .kern(10)])))
         )
+    }
+    
+    func test_atributikaStyleKitPreload_withValidJSON_shouldBeTrue() throws {
+        let JSON = """
+        [
+            {
+                "name": "menu-style",
+                "attributes": {
+                    "font": {
+                        "name": "italic",
+                        "size": 18
+                    },
+                    "kern": 10
+                },
+                "tagStyles": [
+                    {
+                        "name": "tag",
+                        "attributes": {
+                            "foregroundColor": "red",
+                            "underline": {
+                                "style": "single",
+                                "color": "systemBlue"
+                            }
+                        }
+                    }
+                ]
+            }
+        ]
+        """
+        
+        let shared = AtributikaStyleKit.shared
+        try shared.preload(json: JSON)
+        XCTAssertEqual(shared.styles.count, 1)
+        
+        let menuStyle = shared.styles["menu-style"]
+        XCTAssertNotNil(menuStyle)
+        
+        if let menuStyle = menuStyle {
+            XCTAssertEqual(menuStyle.name, "menu-style")
+            XCTAssertEqual(menuStyle.all.attributes[.font] as! Font, Font.italicSystemFont(ofSize: 18))
+            XCTAssertEqual(menuStyle.all.attributes[.kern] as! Float, 10)
+            
+            if let tags = menuStyle.tags {
+                XCTAssertEqual(tags.count, 1)
+                XCTAssertEqual(tags[0].name, "tag")
+                XCTAssertEqual(tags[0].attributes[.foregroundColor] as! Color, Color.red)
+                XCTAssertEqual(tags[0].attributes[.underlineStyle] as! Int, NSUnderlineStyle.single.rawValue)
+                XCTAssertEqual(tags[0].attributes[.underlineColor] as! Color, Color.systemBlue)
+            }
+        }
+    }
+    
+    func test_attributedTextStylingUsingKit_withValidJSON_shouldBeTrue() throws {
+        let text = "Save <b>$1.00</b> on <b>any</b> order!"
+        let JSON = """
+        [
+            {
+                "name": "style",
+                "attributes": {
+                    "font": {
+                        "name": "systemFont",
+                        "size": 14
+                    },
+                    "foregroundColor": "red"
+                },
+                "tagStyles": [
+                    {
+                        "name": "b",
+                        "attributes": {
+                            "font": {
+                                "name": "boldSystemFont",
+                                "size": 14
+                            }
+                        }
+                    }
+                ]
+            }
+        ]
+        """
+        
+        let shared = AtributikaStyleKit.shared
+        try shared.preload(json: JSON)
+        
+        let good = try text.apply(style: "style").attributedString
+        let goodReference = NSMutableAttributedString(string: "Save $1.00 on any order!", attributes: [.font: Font.systemFont(ofSize: 14), .foregroundColor: Color.red])
+        goodReference.addAttributes([.font: Font.boldSystemFont(ofSize: 14)], range: NSMakeRange(5, 5))
+        goodReference.addAttributes([.font: Font.boldSystemFont(ofSize: 14)], range: NSMakeRange(14, 3))
+        
+        XCTAssertEqual(good, goodReference)
     }
 }
